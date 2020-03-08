@@ -1,6 +1,9 @@
 boolean keys[] = new boolean[1024];
 PImage bg;
 World world;
+int worldNumber = 1;
+
+
 enum gameState{
 
   MAIN_MENU, GAME, PAUSE;
@@ -15,7 +18,7 @@ void setup(){
   setupUI();
   configureUI();
   bg = loadImage("world\\bg.png");
-  world = new World("world\\w1.png");
+  world = new World("world\\w"+worldNumber+".png");
   world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
   frameRate(45);
 
@@ -33,8 +36,10 @@ void keyPress(){
 
   if(keys[87]&&!inAir&&velx!=0){
 
-    vely-=15;
+    vely-=15*gravity;
+    
     rotvel += jumpRotVel;
+
   }
 
 
@@ -54,11 +59,10 @@ void draw(){
     handleParticles();
     if(velx==0){
       if(particles.size()==0){
-        world = new World("world\\w1.png");
+        world = new World("world\\w"+worldNumber+".png");
         world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
         velx = 10;
       }
-
     }
 
   }

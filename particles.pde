@@ -6,7 +6,7 @@ void moveParticles(){
 
   for(int i = 0; i < 5;i++){
 
-    Particle p = new Particle(world.x+width/2+25+(int)random(-1,1),world.y+height/2+50+(int)random(-1,1));
+    Particle p = new Particle(world.x+width/2+25+(int)random(-1,1),world.y+height/2+(25*(gravity+1))+(int)random(-1,1));
     p.velx = -12+random(-1,1);
     p.vely = 1+random(-1,1);
     p.life = 100;

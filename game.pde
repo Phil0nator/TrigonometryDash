@@ -29,7 +29,11 @@ void drawChunk(int type, int x, int y){
   }else if (type == 3){
 
     fill(255,0,255,200);
-    ellipse(0,0,BLOCK_DIMENTION,BLOCK_DIMENTION);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
+  }else if (type == 4){
+    fill(255,255,0);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
 
   }
 
@@ -78,6 +82,7 @@ class World{
         // 1 = block normal
         // 2 = spike
         // 3 = reverse gravity pad
+        // 4 = jump pad
         //////////////////////////////
 
         if(dat.get(i,j)==color(0,0,0)){
@@ -88,6 +93,8 @@ class World{
           data[i][j]=2;
         }else if (dat.get(i,j) == color(255,0,255)){
           data[i][j]=3;
+        }else if (dat.get(i,j) == color(255,255,0)){
+          data[i][j] = 4;
         }
 
       }
@@ -107,9 +114,7 @@ class World{
     if(vely<0&&gravity==1){
       vely++;
       inAir = true;
-    }
-
-    if(vely>0&&gravity==-1){
+    }else if(vely>0&&gravity==-1){
       vely--;
       inAir = true;
     }
@@ -123,10 +128,16 @@ class World{
     }
 
     int indX = (x+width/2)/BLOCK_DIMENTION;
-    int indY = (y+height/2)/BLOCK_DIMENTION;
+    int indY = ((y+(25*(gravity+1)))+height/2)/BLOCK_DIMENTION;
 
-    if ((indX>WORLD_DIMENTION-2||indY>WORLD_DIMENTION-2)){
+    if ((indY>WORLD_DIMENTION-2)){
       if(velx!=0)die();
+      return;
+    }
+
+    if(indX>WORLD_DIMENTION-2){
+      if(velx!=0)worldNumber++;
+      particles.clear();
       return;
     }
 
@@ -161,6 +172,12 @@ class World{
 
       gravity = -gravity;
       y+=gravity*BLOCK_DIMENTION;
+
+    }
+
+    if(data[indX][indY] == 4){
+
+      vely-=gravity*50;
 
     }
 
