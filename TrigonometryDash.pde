@@ -32,10 +32,10 @@ void keyReleased(){
 
 void keyPress(){
 
-  if(keys[87]){
+  if(keys[87]&&!inAir&&velx!=0){
 
-    vely-=5;
-
+    vely-=15;
+    rotvel += jumpRotVel;
   }
 
 
@@ -52,9 +52,17 @@ void draw(){
 
     image(bg,-world.x/100,0);
     world.d();
-    fill(255,0,255);
-    stroke(255,0,255);
-    text(world.y,50,50);
+    handleParticles();
+    if(velx==0){
+
+      if(particles.size()==0){
+        world = new World("world\\w1.png");
+        world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
+        velx = 10;
+      }
+
+    }
+
   }
 
   if(State!=gameState.GAME){
