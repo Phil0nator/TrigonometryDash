@@ -11,15 +11,14 @@ gameState State = gameState.MAIN_MENU;
 
 void setup(){
 
-  fullScreen();
+  fullScreen(P2D);
   setupUI();
   configureUI();
-
   bg = loadImage("world\\bg.png");
-
-
   world = new World("world\\w1.png");
   world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
+  frameRate(45);
+
 
 }
 void keyPressed(){
@@ -45,7 +44,7 @@ void keyPress(){
 
 void draw(){
 
-
+  background(0);
   keyPress();
 
   if(State==gameState.GAME){
@@ -54,7 +53,6 @@ void draw(){
     world.d();
     handleParticles();
     if(velx==0){
-
       if(particles.size()==0){
         world = new World("world\\w1.png");
         world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
@@ -66,7 +64,7 @@ void draw(){
   }
 
   if(State!=gameState.GAME){
-    background(0);
+
     updateUI();
     UIConds();
   }

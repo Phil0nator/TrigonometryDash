@@ -4,7 +4,7 @@ ArrayList<Particle> particles = new ArrayList<Particle>();
 ArrayList<Particle> deadParts = new ArrayList<Particle>();
 void moveParticles(){
 
-  for(int i = 0; i < 1;i++){
+  for(int i = 0; i < 5;i++){
 
     Particle p = new Particle(world.x+width/2+25+(int)random(-1,1),world.y+height/2+50+(int)random(-1,1));
     p.velx = -12+random(-1,1);
@@ -23,9 +23,10 @@ void deathParticles(){
   for(int i = 0 ; i < 150;i++){
 
     Particle p = new Particle(world.x+width/2+(int)random(-10,10),world.y+height/2+(int)random(-10,10));
-    p.velx = random(-5,5);
-    p.vely = random(-5,5);
+    p.velx = 10+random(-5,5);
+    p.vely = random(-50,5);
     p.life = 100;
+    p.c = PLAYER_COLOR;
 
   }
 
@@ -60,7 +61,7 @@ class Particle{
 
     rot+=rotvel;
     life++;
-
+    vely++;
     if (life>254){
       life = 255;
       deadParts.add(this);
