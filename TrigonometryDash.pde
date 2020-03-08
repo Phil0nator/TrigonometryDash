@@ -37,7 +37,7 @@ void keyPress(){
   if(keys[87]&&!inAir&&velx!=0){
 
     vely-=15*gravity;
-    
+
     rotvel += jumpRotVel;
 
   }
@@ -62,6 +62,7 @@ void draw(){
         world = new World("world\\w"+worldNumber+".png");
         world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
         velx = 10;
+        gravity = 1;
       }
     }
 

@@ -56,7 +56,7 @@ public void keyPress(){
   if(keys[87]&&!inAir&&velx!=0){
 
     vely-=15*gravity;
-    
+
     rotvel += jumpRotVel;
 
   }
@@ -81,6 +81,7 @@ public void draw(){
         world = new World("world\\w"+worldNumber+".png");
         world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
         velx = 10;
+        gravity = 1;
       }
     }
 
@@ -763,6 +764,10 @@ public void drawChunk(int type, int x, int y){
     fill(255,255,0);
     ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
 
+  }else if (type == 5){
+
+    triangle(0,0,BLOCK_DIMENTION,0,BLOCK_DIMENTION/2,BLOCK_DIMENTION);
+
   }
 
   popMatrix();
@@ -811,6 +816,7 @@ class World{
         // 2 = spike
         // 3 = reverse gravity pad
         // 4 = jump pad
+        // 5 = upside-down spikes
         //////////////////////////////
 
         if(dat.get(i,j)==color(0,0,0)){
@@ -823,6 +829,8 @@ class World{
           data[i][j]=3;
         }else if (dat.get(i,j) == color(255,255,0)){
           data[i][j] = 4;
+        }else if (dat.get(i,j) == color(255,1,0)){
+          data[i][j] = 5;
         }
 
       }
@@ -855,8 +863,9 @@ class World{
       rotvel = 0;
     }
 
-    int indX = (x+width/2)/BLOCK_DIMENTION;
-    int indY = ((y+(25*(gravity+1)))+height/2)/BLOCK_DIMENTION;
+    int indX = ((x)+width/2)/BLOCK_DIMENTION;
+    int indY = ((y)+height/2)/BLOCK_DIMENTION;
+
 
     if ((indY>WORLD_DIMENTION-2)){
       if(velx!=0)die();
@@ -866,22 +875,27 @@ class World{
     if(indX>WORLD_DIMENTION-2){
       if(velx!=0)worldNumber++;
       particles.clear();
+      die();
       return;
     }
 
+
     if(data[indX][indY+gravity] == 1){
+      if(((gravity==1&&vely>0)||(gravity==-1&&vely<0))){
       vely=0;
       y = indY*BLOCK_DIMENTION - (height/2);
       inAir=false;
       rot = 0;
       rotvel = 0;
-      if(velx!=0){
-        moveParticles();
-      }
+
+    }
+    if(velx!=0){
+      moveParticles();
+    }
     }else{
       vely+=gravity;
       inAir = true;
-      rot += 10;
+      rot += 10*gravity;
     }
 
 
@@ -890,7 +904,7 @@ class World{
       die();
     }
 
-    if(data[indX][indY] == 2&&velx!=0){
+    if(((data[indX][indY] == 2)||(data[indX][indY] ==5))&&velx!=0){
 
       die();
 
@@ -903,7 +917,7 @@ class World{
 
     }
 
-    if(data[indX][indY] == 4){
+    if((data[indX][indY] == 4)){
 
       vely-=gravity*50;
 
