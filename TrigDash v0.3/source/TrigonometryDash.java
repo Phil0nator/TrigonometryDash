@@ -34,6 +34,7 @@ gameState State = gameState.MAIN_MENU;
 public void setup(){
 
   
+  
   setupUI();
   configureUI();
   bg = loadImage("world\\bg.png");
@@ -1084,7 +1085,7 @@ public void handleParticles(){
 
 
 }
-  public void settings() {  fullScreen(P2D); }
+  public void settings() {  size(1920,1080,P2D);  smooth(8); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "TrigonometryDash" };
     if (passedArgs != null) {

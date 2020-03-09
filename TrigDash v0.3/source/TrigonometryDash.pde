@@ -14,7 +14,8 @@ gameState State = gameState.MAIN_MENU;
 
 void setup(){
 
-  fullScreen(P2D);
+  size(1920,1080,P2D);
+  smooth(8);
   setupUI();
   configureUI();
   bg = loadImage("world\\bg.png");
