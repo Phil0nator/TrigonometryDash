@@ -39,6 +39,19 @@ void drawChunk(int type, int x, int y){
 
     triangle(0,0,BLOCK_DIMENTION,0,BLOCK_DIMENTION/2,BLOCK_DIMENTION);
 
+  }else if (type == 6){
+
+    line(BLOCK_DIMENTION/3,BLOCK_DIMENTION,BLOCK_DIMENTION/3+1,(BLOCK_DIMENTION/3)*(float)random(1,3));
+    line((BLOCK_DIMENTION/3)*2,BLOCK_DIMENTION,((BLOCK_DIMENTION/3)*2)+1,(BLOCK_DIMENTION/3)*(float)random(1,3));
+    line((BLOCK_DIMENTION/3)*3,BLOCK_DIMENTION,((BLOCK_DIMENTION/3)*3)+1,(BLOCK_DIMENTION/3)*(float)random(1,3));
+
+
+  }else if (type == 7){
+
+    line(BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION/2,BLOCK_DIMENTION*(2.0/3));
+    float r = random(5,BLOCK_DIMENTION/3);
+    ellipse(BLOCK_DIMENTION/2,BLOCK_DIMENTION*(2.0/3),r,r);
+
   }
 
   popMatrix();
@@ -88,6 +101,8 @@ class World{
         // 3 = reverse gravity pad
         // 4 = jump pad
         // 5 = upside-down spikes
+        // 6 = harmless grass
+        // 7 = harmless bloopy thing
         //////////////////////////////
 
         if(dat.get(i,j)==color(0,0,0)){
@@ -102,6 +117,10 @@ class World{
           data[i][j] = 4;
         }else if (dat.get(i,j) == color(255,1,0)){
           data[i][j] = 5;
+        }else if (dat.get(i,j) == color(140,255,251)){
+          data[i][j] = 6;
+        }else if (dat.get(i,j) == color(0,168,243)){
+          data[i][j] = 7;
         }
 
       }
