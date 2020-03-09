@@ -20,7 +20,7 @@ public class TrigonometryDash extends PApplet {
 boolean keys[] = new boolean[1024];
 PImage bg;
 World world;
-int worldNumber = 1;
+int worldNumber = 2;
 
 
 enum gameState{
