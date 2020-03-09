@@ -20,7 +20,7 @@ public class TrigonometryDash extends PApplet {
 boolean keys[] = new boolean[1024];
 PImage bg;
 World world;
-int worldNumber = 2;
+int worldNumber = 1;
 
 
 enum gameState{
@@ -53,7 +53,10 @@ public void keyReleased(){
 
 public void keyPress(){
 
-  if(keys[87]&&!inAir&&velx!=0){
+
+  boolean validKey = keys[87]||keys[32]||keys[38];
+
+  if(validKey&&!inAir&&velx!=0){
 
     vely-=15*gravity;
 

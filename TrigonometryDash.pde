@@ -34,7 +34,10 @@ void keyReleased(){
 
 void keyPress(){
 
-  if(keys[87]&&!inAir&&velx!=0){
+
+  boolean validKey = keys[87]||keys[32]||keys[38];
+
+  if(validKey&&!inAir&&velx!=0){
 
     vely-=15*gravity;
 
