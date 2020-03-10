@@ -1,7 +1,7 @@
 boolean keys[] = new boolean[1024];
 PImage bg;
 World world;
-int worldNumber = 2;
+int worldNumber = 3;
 
 
 enum gameState{
@@ -10,8 +10,15 @@ enum gameState{
 
 }
 
-gameState State = gameState.MAIN_MENU;
+enum PlayerState{
+ 
+  SQUARE, SAW, PLANE;
+  
+}
 
+
+gameState State = gameState.MAIN_MENU;
+PlayerState pstate = PlayerState.SQUARE;
 void setup(){
 
   size(1920,1080,P2D);
@@ -38,18 +45,43 @@ void keyPress(){
 
   boolean validKey = keys[87]||keys[32]||keys[38];
 
-  if(validKey&&!inAir&&velx!=0){
+  if(validKey){
 
-    vely-=15*gravity;
-
-    rotvel += jumpRotVel;
-
+    inputPlayer();
+    
   }
 
 
 
 
 }
+
+void inputPlayer(){
+  if(!inAir&&velx!=0){
+    if(pstate == PlayerState.SQUARE){
+    
+      vely-=15*gravity;
+  
+      rotvel += jumpRotVel;
+  
+      
+    }else if (pstate == PlayerState.SAW){
+     
+      gravity=-gravity;
+      
+    }
+  }
+   
+  if(pstate == PlayerState.PLANE){
+   
+    vely-=gravity*3;
+    rot-=2*gravity;
+    
+  }
+
+}
+
+
 
 void draw(){
 

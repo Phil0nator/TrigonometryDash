@@ -18,6 +18,17 @@ void moveParticles(){
 
 }
 
+void planeParticles(){
+
+    Particle p = new Particle(world.x+width/2+25+(int)random(-1,1),world.y+height/2+(25*gravity)+(int)random(-1,1));
+    p.velx = -12+random(-1,1);
+    p.vely = 1+random(-1,1);
+    p.life = 100;
+    p.c = color(random(0,255),random(0,255),random(0,255));
+  
+}
+
+
 void deathParticles(){
 
   for(int i = 0 ; i < 150;i++){

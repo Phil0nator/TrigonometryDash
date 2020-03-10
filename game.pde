@@ -52,6 +52,15 @@ void drawChunk(int type, int x, int y){
     float r = random(5,BLOCK_DIMENTION/3);
     ellipse(BLOCK_DIMENTION/2,BLOCK_DIMENTION*(2.0/3),r,r);
 
+  }else if (type == 8){
+    fill(255,202,24);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
+  }else if (type == 9){
+   
+    fill(196,255,14);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
   }
 
   popMatrix();
@@ -62,19 +71,23 @@ void die(){
 
   velx=0;
   deathParticles();
-
+  pstate = PlayerState.SQUARE;
 
 }
 
 void drawPlayer(){
-
-
-
+    
   pushMatrix();
   translate(width/2+BLOCK_DIMENTION/2,height/2+BLOCK_DIMENTION/2);
   rotate(radians(rot));
   fill(PLAYER_COLOR);
-  rect(-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+  if(pstate == PlayerState.SQUARE){
+    rect(-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+  }else if (pstate == PlayerState.SAW){
+    ellipse(0,0,BLOCK_DIMENTION,BLOCK_DIMENTION);  
+  }else if (pstate == PlayerState.PLANE){
+    triangle(-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2, 0,0,-BLOCK_DIMENTION/4);
+  }
   popMatrix();
 
 }
@@ -103,6 +116,8 @@ class World{
         // 5 = upside-down spikes
         // 6 = harmless grass
         // 7 = harmless bloopy thing
+        // 8 = portal to saw
+        // 9 = portal to plane
         //////////////////////////////
 
         if(dat.get(i,j)==color(0,0,0)){
@@ -121,6 +136,10 @@ class World{
           data[i][j] = 6;
         }else if (dat.get(i,j) == color(0,168,243)){
           data[i][j] = 7;
+        }else if (dat.get(i,j) ==color(255,202,24)){
+          data[i][j] = 8;
+        }else if (dat.get(i,j) == color(196,255,14)){
+          data[i][j] = 9; 
         }
 
       }
@@ -134,8 +153,9 @@ class World{
 
     x+=velx;
     y+=vely;
-
-
+    if(pstate == PlayerState.PLANE){
+      planeParticles();
+    }
 
     if(vely<0&&gravity==1){
       vely++;
@@ -180,6 +200,10 @@ class World{
       rot = 0;
       rotvel = 0;
 
+    }else{
+      
+      
+
     }
     if(velx!=0){
       moveParticles();
@@ -187,33 +211,27 @@ class World{
     }else{
       vely+=gravity;
       inAir = true;
-      rot += 10*gravity;
+      if(pstate == PlayerState.SQUARE){
+        rot += 10*gravity;
+      }
+    }
+
+    if(inAir){
+      
+      if(pstate == PlayerState.PLANE){
+        
+        if(rot <360-45){
+          rot = 360-45;
+        }
+        rot+= 1;
+        
+      }
+      
     }
 
 
-    if(data[indX+1][indY] == 1 &&velx!=0){
-
-      die();
-    }
-
-    if(((data[indX][indY] == 2)||(data[indX][indY] ==5))&&velx!=0){
-
-      die();
-
-    }
-
-    if(data[indX][indY] == 3&&velx!=0){
-
-      gravity = -gravity;
-      y+=gravity*BLOCK_DIMENTION;
-
-    }
-
-    if((data[indX][indY] == 4)){
-
-      vely-=gravity*50;
-
-    }
+    rolledOver(data[indX][indY]);
+ 
 
 
   }
@@ -245,4 +263,47 @@ class World{
   }
 
 
+}
+
+void rolledOver(int n){
+   
+     if(n == 1 &&velx!=0){
+
+      die();
+    }
+
+    if(((n == 2)||(n==5))&&velx!=0){
+
+      die();
+
+    }
+
+    if(n == 3&&velx!=0){
+
+      gravity = -gravity;
+      world.y+=gravity*BLOCK_DIMENTION;
+
+    }
+
+    if((n == 4)){
+
+      vely-=gravity*50;
+
+    }
+    
+    if(n == 8){
+     if(pstate == PlayerState.SQUARE){
+       pstate = PlayerState.SAW;
+     } else{
+       pstate = PlayerState.SQUARE; 
+     }
+    }
+    if(n == 9){
+     if(pstate == PlayerState.SQUARE){
+       pstate = PlayerState.PLANE; 
+     }else{
+        pstate = PlayerState.SQUARE; 
+     }
+    }
+  
 }
