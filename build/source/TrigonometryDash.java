@@ -49,8 +49,9 @@ public void loadSongs(){
 
     death = new SoundFile(this, "sound\\d.mp3");
     music[1] = new SoundFile(this, "sound\\1.mp3");
+    music[1].amp(.2f);
     music[2] = new SoundFile(this, "sound\\1.mp3");
-
+    music[2].amp(.2f);
     loaded=true;
 }
 
