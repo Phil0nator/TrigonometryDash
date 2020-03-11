@@ -11,9 +11,9 @@ enum gameState{
 }
 
 enum PlayerState{
- 
+
   SQUARE, SAW, PLANE;
-  
+
 }
 
 
@@ -45,10 +45,10 @@ void keyPress(){
 
   boolean validKey = keys[87]||keys[32]||keys[38];
 
-  if(validKey){
+  if(validKey||mousePressed){
 
     inputPlayer();
-    
+
   }
 
 
@@ -59,24 +59,24 @@ void keyPress(){
 void inputPlayer(){
   if(!inAir&&velx!=0){
     if(pstate == PlayerState.SQUARE){
-    
+
       vely-=15*gravity;
-  
+
       rotvel += jumpRotVel;
-  
-      
+
+
     }else if (pstate == PlayerState.SAW){
-     
+
       gravity=-gravity;
-      
+
     }
   }
-   
+
   if(pstate == PlayerState.PLANE){
-   
+
     vely-=gravity*3;
     rot-=2*gravity;
-    
+
   }
 
 }

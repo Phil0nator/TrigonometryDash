@@ -20,7 +20,7 @@ public class TrigonometryDash extends PApplet {
 boolean keys[] = new boolean[1024];
 PImage bg;
 World world;
-int worldNumber = 1;
+int worldNumber = 2;
 
 
 enum gameState{
@@ -29,10 +29,18 @@ enum gameState{
 
 }
 
-gameState State = gameState.MAIN_MENU;
+enum PlayerState{
 
+  SQUARE, SAW, PLANE;
+
+}
+
+
+gameState State = gameState.MAIN_MENU;
+PlayerState pstate = PlayerState.SQUARE;
 public void setup(){
 
+  
   
   setupUI();
   configureUI();
@@ -56,11 +64,9 @@ public void keyPress(){
 
   boolean validKey = keys[87]||keys[32]||keys[38];
 
-  if(validKey&&!inAir&&velx!=0){
+  if(validKey||mousePressed){
 
-    vely-=15*gravity;
-
-    rotvel += jumpRotVel;
+    inputPlayer();
 
   }
 
@@ -68,6 +74,33 @@ public void keyPress(){
 
 
 }
+
+public void inputPlayer(){
+  if(!inAir&&velx!=0){
+    if(pstate == PlayerState.SQUARE){
+
+      vely-=15*gravity;
+
+      rotvel += jumpRotVel;
+
+
+    }else if (pstate == PlayerState.SAW){
+
+      gravity=-gravity;
+
+    }
+  }
+
+  if(pstate == PlayerState.PLANE){
+
+    vely-=gravity*3;
+    rot-=2*gravity;
+
+  }
+
+}
+
+
 
 public void draw(){
 
@@ -740,7 +773,7 @@ int velx = 10;
 int vely = 0;
 float rot = 0;
 float rotvel = 0;
-
+float bounceFactor = .5f;
 
 
 public void drawChunk(int type, int x, int y){
@@ -784,6 +817,24 @@ public void drawChunk(int type, int x, int y){
     float r = random(5,BLOCK_DIMENTION/3);
     ellipse(BLOCK_DIMENTION/2,BLOCK_DIMENTION*(2.0f/3),r,r);
 
+  }else if (type == 8){
+    fill(255,202,24);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
+  }else if (type == 9){
+
+    fill(196,255,14);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
+  }else if (type == 10){
+
+    fill(255,255,1,100);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION*2*bounceFactor,BLOCK_DIMENTION*2*bounceFactor);
+    fill(255,255,1);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
+
+
   }
 
   popMatrix();
@@ -794,19 +845,23 @@ public void die(){
 
   velx=0;
   deathParticles();
-
+  pstate = PlayerState.SQUARE;
 
 }
 
 public void drawPlayer(){
 
-
-
   pushMatrix();
   translate(width/2+BLOCK_DIMENTION/2,height/2+BLOCK_DIMENTION/2);
   rotate(radians(rot));
   fill(PLAYER_COLOR);
-  rect(-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+  if(pstate == PlayerState.SQUARE){
+    rect(-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+  }else if (pstate == PlayerState.SAW){
+    ellipse(0,0,BLOCK_DIMENTION,BLOCK_DIMENTION);
+  }else if (pstate == PlayerState.PLANE){
+    triangle(-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2, 0,0,-BLOCK_DIMENTION/4);
+  }
   popMatrix();
 
 }
@@ -827,14 +882,17 @@ class World{
       for(int j = 0 ; j < WORLD_DIMENTION; j++){
 
         /////////////////////////////
-        // 0 = nothing
-        // 1 = block normal
-        // 2 = spike
-        // 3 = reverse gravity pad
-        // 4 = jump pad
-        // 5 = upside-down spikes
-        // 6 = harmless grass
-        // 7 = harmless bloopy thing
+        // 0  = nothing
+        // 1  = block normal
+        // 2  = spike
+        // 3  = reverse gravity pad
+        // 4  = jump pad
+        // 5  = upside-down spikes
+        // 6  = harmless grass
+        // 7  = harmless bloopy thing
+        // 8  = portal to saw
+        // 9  = portal to plane
+        // 10 = in-air jump blob
         //////////////////////////////
 
         if(dat.get(i,j)==color(0,0,0)){
@@ -853,6 +911,12 @@ class World{
           data[i][j] = 6;
         }else if (dat.get(i,j) == color(0,168,243)){
           data[i][j] = 7;
+        }else if (dat.get(i,j) ==color(255,202,24)){
+          data[i][j] = 8;
+        }else if (dat.get(i,j) == color(196,255,14)){
+          data[i][j] = 9;
+        }else if (dat.get(i,j) == color(255,255,1)){
+          data[i][j] = 10;
         }
 
       }
@@ -866,8 +930,9 @@ class World{
 
     x+=velx;
     y+=vely;
-
-
+    if(pstate == PlayerState.PLANE){
+      planeParticles();
+    }
 
     if(vely<0&&gravity==1){
       vely++;
@@ -912,6 +977,10 @@ class World{
       rot = 0;
       rotvel = 0;
 
+    }else{
+
+
+
     }
     if(velx!=0){
       moveParticles();
@@ -919,38 +988,39 @@ class World{
     }else{
       vely+=gravity;
       inAir = true;
-      rot += 10*gravity;
+      if(pstate == PlayerState.SQUARE){
+        rot += 10*gravity;
+      }
+    }
+
+    if(inAir){
+
+      if(pstate == PlayerState.PLANE){
+
+        if(rot <360-45){
+          rot = 360-45;
+        }
+        rot+= 1;
+
+      }
+
     }
 
 
-    if(data[indX+1][indY] == 1 &&velx!=0){
+    rolledOver(data[indX][indY]);
 
-      die();
-    }
-
-    if(((data[indX][indY] == 2)||(data[indX][indY] ==5))&&velx!=0){
-
-      die();
-
-    }
-
-    if(data[indX][indY] == 3&&velx!=0){
-
-      gravity = -gravity;
-      y+=gravity*BLOCK_DIMENTION;
-
-    }
-
-    if((data[indX][indY] == 4)){
-
-      vely-=gravity*50;
-
-    }
 
 
   }
 
   public void d(){
+
+    if(bounceFactor < 1){
+      bounceFactor*=1.000001f;
+    }else{
+      bounceFactor*=.9999999f;
+    }
+
     physics();
     if(velx!=0){
       drawPlayer();
@@ -978,6 +1048,49 @@ class World{
 
 
 }
+
+public void rolledOver(int n){
+
+     if(n == 1 &&velx!=0){
+
+      die();
+    }
+
+    if(((n == 2)||(n==5))&&velx!=0){
+
+      die();
+
+    }
+
+    if(n == 3&&velx!=0){
+
+      gravity = -gravity;
+      world.y+=gravity*BLOCK_DIMENTION;
+
+    }
+
+    if((n == 4)){
+
+      vely-=gravity*50;
+
+    }
+
+    if(n == 8){
+     if(pstate == PlayerState.SQUARE){
+       pstate = PlayerState.SAW;
+     } else{
+       pstate = PlayerState.SQUARE;
+     }
+    }
+    if(n == 9){
+     if(pstate == PlayerState.SQUARE){
+       pstate = PlayerState.PLANE;
+     }else{
+        pstate = PlayerState.SQUARE;
+     }
+    }
+
+}
 final int PARTICLE_DIM = 10;
 
 ArrayList<Particle> particles = new ArrayList<Particle>();
@@ -997,6 +1110,17 @@ public void moveParticles(){
 
 
 }
+
+public void planeParticles(){
+
+    Particle p = new Particle(world.x+width/2+25+(int)random(-1,1),world.y+height/2+(25*gravity)+(int)random(-1,1));
+    p.velx = -12+random(-1,1);
+    p.vely = 1+random(-1,1);
+    p.life = 100;
+    p.c = color(random(0,255),random(0,255),random(0,255));
+  
+}
+
 
 public void deathParticles(){
 
@@ -1084,7 +1208,7 @@ public void handleParticles(){
 
 
 }
-  public void settings() {  fullScreen(P2D); }
+  public void settings() {  size(1920,1080,P2D);  smooth(8); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "TrigonometryDash" };
     if (passedArgs != null) {

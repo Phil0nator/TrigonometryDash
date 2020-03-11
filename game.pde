@@ -8,7 +8,7 @@ int velx = 10;
 int vely = 0;
 float rot = 0;
 float rotvel = 0;
-
+float bounceFactor = .5;
 
 
 void drawChunk(int type, int x, int y){
@@ -57,9 +57,18 @@ void drawChunk(int type, int x, int y){
     ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
 
   }else if (type == 9){
-   
+
     fill(196,255,14);
     ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
+  }else if (type == 10){
+
+    fill(255,255,1,100);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION*2*bounceFactor,BLOCK_DIMENTION*2*bounceFactor);
+    fill(255,255,1);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
+
 
   }
 
@@ -76,7 +85,7 @@ void die(){
 }
 
 void drawPlayer(){
-    
+
   pushMatrix();
   translate(width/2+BLOCK_DIMENTION/2,height/2+BLOCK_DIMENTION/2);
   rotate(radians(rot));
@@ -84,7 +93,7 @@ void drawPlayer(){
   if(pstate == PlayerState.SQUARE){
     rect(-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
   }else if (pstate == PlayerState.SAW){
-    ellipse(0,0,BLOCK_DIMENTION,BLOCK_DIMENTION);  
+    ellipse(0,0,BLOCK_DIMENTION,BLOCK_DIMENTION);
   }else if (pstate == PlayerState.PLANE){
     triangle(-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2,-BLOCK_DIMENTION/2, 0,0,-BLOCK_DIMENTION/4);
   }
@@ -108,16 +117,17 @@ class World{
       for(int j = 0 ; j < WORLD_DIMENTION; j++){
 
         /////////////////////////////
-        // 0 = nothing
-        // 1 = block normal
-        // 2 = spike
-        // 3 = reverse gravity pad
-        // 4 = jump pad
-        // 5 = upside-down spikes
-        // 6 = harmless grass
-        // 7 = harmless bloopy thing
-        // 8 = portal to saw
-        // 9 = portal to plane
+        // 0  = nothing
+        // 1  = block normal
+        // 2  = spike
+        // 3  = reverse gravity pad
+        // 4  = jump pad
+        // 5  = upside-down spikes
+        // 6  = harmless grass
+        // 7  = harmless bloopy thing
+        // 8  = portal to saw
+        // 9  = portal to plane
+        // 10 = in-air jump blob
         //////////////////////////////
 
         if(dat.get(i,j)==color(0,0,0)){
@@ -139,7 +149,9 @@ class World{
         }else if (dat.get(i,j) ==color(255,202,24)){
           data[i][j] = 8;
         }else if (dat.get(i,j) == color(196,255,14)){
-          data[i][j] = 9; 
+          data[i][j] = 9;
+        }else if (dat.get(i,j) == color(255,255,1)){
+          data[i][j] = 10;
         }
 
       }
@@ -201,8 +213,8 @@ class World{
       rotvel = 0;
 
     }else{
-      
-      
+
+
 
     }
     if(velx!=0){
@@ -217,26 +229,33 @@ class World{
     }
 
     if(inAir){
-      
+
       if(pstate == PlayerState.PLANE){
-        
+
         if(rot <360-45){
           rot = 360-45;
         }
         rot+= 1;
-        
+
       }
-      
+
     }
 
 
     rolledOver(data[indX][indY]);
- 
+
 
 
   }
 
   void d(){
+
+    if(bounceFactor < 1){
+      bounceFactor*=1.000001;
+    }else{
+      bounceFactor*=.9999999;
+    }
+
     physics();
     if(velx!=0){
       drawPlayer();
@@ -266,7 +285,7 @@ class World{
 }
 
 void rolledOver(int n){
-   
+
      if(n == 1 &&velx!=0){
 
       die();
@@ -290,20 +309,20 @@ void rolledOver(int n){
       vely-=gravity*50;
 
     }
-    
+
     if(n == 8){
      if(pstate == PlayerState.SQUARE){
        pstate = PlayerState.SAW;
      } else{
-       pstate = PlayerState.SQUARE; 
+       pstate = PlayerState.SQUARE;
      }
     }
     if(n == 9){
      if(pstate == PlayerState.SQUARE){
-       pstate = PlayerState.PLANE; 
+       pstate = PlayerState.PLANE;
      }else{
-        pstate = PlayerState.SQUARE; 
+        pstate = PlayerState.SQUARE;
      }
     }
-  
+
 }
