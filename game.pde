@@ -255,9 +255,10 @@ class World{
 
       if(mousePressed){
 
-        if(data[indX][indY] == 10){
+        if(data[indX][indY] == 10||data[indX][indY+gravity]==10){
+          vely=0;
           vely-=15*gravity;
-        }if(data[indX][indY] == 11){
+        }if(data[indX][indY] == 11||data[indX][indY+gravity]==11){
           vely=-vely;
           gravity = -gravity;
         }
@@ -297,9 +298,21 @@ class World{
     for(int i = indX ; i < indX+blocksPerScreen-1;i++){
 
       for(int j = indY ; j < indY+blocksPerHeight-1; j++){
-
+        if(i == indX+blocksPerScreen-2){
+          translate(0,-x%BLOCK_DIMENTION);
+        }
+        else if(i == indX){
+         translate(0,x%BLOCK_DIMENTION); 
+        }
         if(i<WORLD_DIMENTION&&j<WORLD_DIMENTION)
         drawChunk(data[i][j],i,j);
+        
+        if(i == indX+blocksPerScreen-2){
+          translate(0,x%BLOCK_DIMENTION);
+        }
+        else if(i == indX){
+         translate(0,-x%BLOCK_DIMENTION); 
+        }
 
       }
     }

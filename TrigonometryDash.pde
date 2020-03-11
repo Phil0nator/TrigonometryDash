@@ -2,12 +2,12 @@ import processing.sound.*;
 
 
 
-public final int WORLD_COUNT = 3;
+public final int WORLD_COUNT = 10;
 
 boolean keys[] = new boolean[1024];
 PImage bg;
 World world;
-int worldNumber = 2;
+int worldNumber = 1;
 boolean loaded = false;
 
 SoundFile music[] = new SoundFile[WORLD_COUNT];
@@ -32,6 +32,8 @@ void loadSongs(){
     music[1].amp(.2);
     music[2] = new SoundFile(this, "sound\\1.mp3");
     music[2].amp(.2);
+    music[3] = new SoundFile(this, "sound\\1.mp3");
+    music[3].amp(.2);
     loaded=true;
 }
 
