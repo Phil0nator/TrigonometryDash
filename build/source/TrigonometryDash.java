@@ -835,6 +835,15 @@ public void drawChunk(int type, int x, int y){
 
 
 
+  }else if (type == 11){
+
+    fill(255,1,255,100);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION*2*bounceFactor,BLOCK_DIMENTION*2*bounceFactor);
+    fill(255,1,255);
+    ellipse(+BLOCK_DIMENTION/2,+BLOCK_DIMENTION/2,BLOCK_DIMENTION,BLOCK_DIMENTION);
+
+
+
   }
 
   popMatrix();
@@ -893,6 +902,7 @@ class World{
         // 8  = portal to saw
         // 9  = portal to plane
         // 10 = in-air jump blob
+        // 11 = in-air reverse gravity
         //////////////////////////////
 
         if(dat.get(i,j)==color(0,0,0)){
@@ -917,6 +927,8 @@ class World{
           data[i][j] = 9;
         }else if (dat.get(i,j) == color(255,255,1)){
           data[i][j] = 10;
+        }else if (dat.get(i,j) == color(255,1,255)){
+          data[i][j] = 11;
         }
 
       }
@@ -1004,6 +1016,17 @@ class World{
 
       }
 
+      if(mousePressed){
+
+        if(data[indX][indY] == 10){
+          vely-=15*gravity;
+        }if(data[indX][indY] == 11){
+          vely=-vely;
+          gravity = -gravity;
+        }
+
+      }
+
     }
 
 
@@ -1016,9 +1039,9 @@ class World{
   public void d(){
 
     if(bounceFactor < 1){
-      bounceFactor*=1.000001f;
+      bounceFactor*=1.051f;
     }else{
-      bounceFactor*=.9999999f;
+      bounceFactor*=.95f;
     }
 
     physics();
