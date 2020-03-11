@@ -3,6 +3,7 @@ import processing.data.*;
 import processing.event.*; 
 import processing.opengl.*; 
 
+import processing.sound.*; 
 import java.time.Instant; 
 import java.util.ArrayList; 
 
@@ -17,15 +18,25 @@ import java.io.IOException;
 
 public class TrigonometryDash extends PApplet {
 
+
+
+
+
+public final int WORLD_COUNT = 3;
+
 boolean keys[] = new boolean[1024];
 PImage bg;
 World world;
-int worldNumber = 2;
+int worldNumber = 1;
+boolean loaded = false;
+
+SoundFile music[] = new SoundFile[WORLD_COUNT];
+SoundFile death;
 
 
 enum gameState{
 
-  MAIN_MENU, GAME, PAUSE;
+  MAIN_MENU, GAME, PAUSE, LOADING;
 
 }
 
@@ -34,9 +45,15 @@ enum PlayerState{
   SQUARE, SAW, PLANE;
 
 }
+public void loadSongs(){
 
+    death = new SoundFile(this, "sound\\d.mp3");
+    music[1] = new SoundFile(this, "sound\\1.mp3");
 
-gameState State = gameState.MAIN_MENU;
+    loaded=true;
+}
+
+gameState State = gameState.LOADING;
 PlayerState pstate = PlayerState.SQUARE;
 public void setup(){
 
@@ -49,6 +66,7 @@ public void setup(){
   world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
   frameRate(45);
 
+  thread("loadSongs");
 
 }
 public void keyPressed(){
@@ -118,15 +136,23 @@ public void draw(){
         world.y = (BLOCK_DIMENTION*WORLD_DIMENTION) - (20*BLOCK_DIMENTION);
         velx = 10;
         gravity = 1;
+        music[worldNumber].play();
+        death.stop();
       }
     }
 
   }
 
-  if(State!=gameState.GAME){
+  if(State!=gameState.GAME&&State!=gameState.LOADING){
 
     updateUI();
     UIConds();
+  }else if (State == gameState.LOADING){
+    fill(random(0,255),255,random(100,200));
+    ellipse(width/2,height/2,random(0,50),random(0,50));
+    if(loaded){
+    State = gameState.MAIN_MENU;
+    }
   }
 
 }
@@ -149,6 +175,7 @@ public void UIConds(){
   if(MM_P.clicked()){
 
     State = gameState.GAME;
+    music[worldNumber].play();
 
   }
 
@@ -774,7 +801,7 @@ int vely = 0;
 float rot = 0;
 float rotvel = 0;
 float bounceFactor = .5f;
-
+SoundFile currentSong;
 
 public void drawChunk(int type, int x, int y){
 
@@ -855,6 +882,8 @@ public void die(){
   velx=0;
   deathParticles();
   pstate = PlayerState.SQUARE;
+  music[worldNumber].stop();
+  death.play();
 
 }
 

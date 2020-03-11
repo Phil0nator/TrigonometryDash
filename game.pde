@@ -9,7 +9,7 @@ int vely = 0;
 float rot = 0;
 float rotvel = 0;
 float bounceFactor = .5;
-
+SoundFile currentSong;
 
 void drawChunk(int type, int x, int y){
 
@@ -90,6 +90,8 @@ void die(){
   velx=0;
   deathParticles();
   pstate = PlayerState.SQUARE;
+  music[worldNumber].stop();
+  death.play();
 
 }
 

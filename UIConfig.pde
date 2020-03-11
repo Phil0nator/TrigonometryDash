@@ -17,6 +17,7 @@ void UIConds(){
   if(MM_P.clicked()){
 
     State = gameState.GAME;
+    music[worldNumber].play();
 
   }
 
