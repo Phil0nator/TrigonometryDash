@@ -19,14 +19,16 @@ var keys = [1024];
 let world_object;
 let world;
 var blockDim = width/38.4;
-var blocktypecount = 1;
-var world_start_offset_y=500;
+var blocktypecount = 6;
+var world_start_offset_y=990;
 var world_start_offset_x=-blockDim;
 
 var objects = [];
 var scene = new THREE.Scene();
 var fog = 100;
 scene.fog = new THREE.Fog( 0xffffff, fog, fog + 1000 );
+var Amblight = new THREE.AmbientLight( 0x404040 ); // soft white light
+scene.add( Amblight );
 var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -119,11 +121,11 @@ class Block{
         }
         this.object = sgs[type].clone(true);
         scene.add(this.object);
-        this.x=i;
-        this.y=i;
+        this.x=i*2;
+        this.y=j*2;
         this.z=0;
         this.object.position.x=world_start_offset_x+this.x;
-        this.object.position.y=world_start_offset_y-j;
+        this.object.position.y=world_start_offset_y-this.y;
     }
     draw(velx,vely){
         if(this.type==0)return;
@@ -195,19 +197,23 @@ class World{
                     this.data[i][j] = 0;
                 }else if (arraysEqual(c,color(255,255,255))){
                     this.data[i][j] = 1;
-                }else{
-                    this.data[i][j]=0;
-                }/*
                 }else if (arraysEqual(c , color(255,0,0))){
                     this.data[i][j]=2;
+                
                 }else if (arraysEqual(c , color(255,0,255))){
                     this.data[i][j]=3;
+                
                 }else if (arraysEqual(c , color(255,255,0))){
                     this.data[i][j] = 4;
                 }else if (arraysEqual(c , color(255,1,0))){
                     this.data[i][j] = 5;
+                
                 }else if (arraysEqual(c , color(140,255,251))){
                     this.data[i][j] = 6;
+                }else{
+                    this.data[i][j]=0;
+                }
+                /*
                 }else if (arraysEqual(c , color(0,168,243))){
                     this.data[i][j] = 7;
                 }else if (arraysEqual(c ,color(255,202,24))){
@@ -231,9 +237,22 @@ class World{
     }
     draw(){
         if(this.num==0)return;
+        this.x+=this.velx;
+        this.y+=this.vely;
         for(var i = 0 ; i < this.objectData.length;i++){
             
             this.objectData[i].draw(this.velx,this.vely);
+        }
+    }
+    reset(){
+        for(var i = 0 ; i < this.objectData.length;i++){
+            
+            this.objectData[i].object.position.x-=this.x;
+            this.objectData[i].x-=this.x;
+
+            this.objectData[i].object.position.y-=this.y;
+            this.objectData[i].y-=this.y;
+
         }
     }
 }
