@@ -19,9 +19,11 @@ var keys = [1024];
 let world_object;
 let world;
 var blockDim = width/38.4;
-var blocktypecount = 6;
+var blocktypecount = 7;
 var world_start_offset_y=990;
 var world_start_offset_x=-blockDim;
+let playerObject;
+var gravity = 1;
 
 var objects = [];
 var scene = new THREE.Scene();
@@ -66,6 +68,34 @@ var loader = new LOADER.GLTFLoader();
 
 //standard geometries:
 var sgs = [null];
+loader.load(
+    // resource URL
+    'assets/blocks/p.glb',
+    // called when the resource is loaded
+    function ( gltf ) {
+        
+        //sgs.push(gltf.scene);
+        playerObject=gltf.scene;
+        scene.add(gltf.scene);
+        
+        
+        //playerObject.castShadow=true;
+        
+        
+    },
+    function ( xhr ) {
+
+        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+    },
+    // called when loading has errors
+    function ( error ) {
+
+        console.log( 'An error happened: '+error );
+
+    }
+);
+
 for(var i = 1; i <= blocktypecount;i++){
     
     loader.load(
@@ -85,7 +115,7 @@ for(var i = 1; i <= blocktypecount;i++){
         // called when loading has errors
         function ( error ) {
     
-            console.log( 'An error happened' );
+            console.log( 'An error happened: '+error );
     
         }
     );
@@ -137,6 +167,8 @@ class Block{
         this.object.position.x+=velx;
         this.object.position.y+=vely;
         this.object.needsUpdate=true;
+
+        
     }
 
     destroy(){
@@ -155,6 +187,12 @@ function arraysEqual(a, b) {
       if (a[i] !== b[i]) return false;
     }
     return true;
+}
+
+
+function die(){
+    world.velx=0;
+    
 }
 
 class World{
@@ -189,6 +227,7 @@ class World{
                 // 9  = portal to plane
                 // 10 = in-air jump blob
                 // 11 = in-air reverse gravity
+                // 
                 //////////////////////////////
                 
                 var c = dat.getContext('2d').getImageData(i,j,1,1).data;
@@ -210,12 +249,13 @@ class World{
                 
                 }else if (arraysEqual(c , color(140,255,251))){
                     this.data[i][j] = 6;
+                
+                }else if (arraysEqual(c , color(0,168,243))){
+                    this.data[i][j] = 7;
                 }else{
                     this.data[i][j]=0;
                 }
                 /*
-                }else if (arraysEqual(c , color(0,168,243))){
-                    this.data[i][j] = 7;
                 }else if (arraysEqual(c ,color(255,202,24))){
                     this.data[i][j] = 8;
                 }else if (arraysEqual(c , color(196,255,14))){
@@ -233,7 +273,8 @@ class World{
 
         this.velx=-.1;
         this.vely=0;
-
+        playerObject.position.y=7;
+        
     }
     draw(){
         if(this.num==0)return;
@@ -255,8 +296,14 @@ class World{
 
         }
     }
+    physics(){
+        if(this.num==0)return;
+        var currentBlock = this.data[0][0];
+    }
+
 }
 world = new World(0);
+
 
 function keyDown(event){
 
@@ -307,6 +354,7 @@ var animate = function () {
     requestAnimationFrame( animate );
     keyboard();
     world.draw();
+    world.physics();
     document.body.scrollTop = document.documentElement.scrollTop = 0;
     if(ingame){
         renderer.render( scene, camera );
