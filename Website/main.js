@@ -67,7 +67,9 @@ var loader = new LOADER.GLTFLoader();
 
 
 //standard geometries:
-var sgs = [null];
+var sgs = new Array(0);
+sgs.length=0;
+sgs.push(null);
 loader.load(
     // resource URL
     'assets/blocks/p.glb',
@@ -104,7 +106,9 @@ for(var i = 1; i <= blocktypecount;i++){
         // called when the resource is loaded
         function ( gltf ) {
             
+            
             sgs.push(gltf.scene);
+            
             //scene.add(gltf.scene);
         },
         function ( xhr ) {
@@ -121,6 +125,7 @@ for(var i = 1; i <= blocktypecount;i++){
     );
     
 }
+
 //world data
 let worlds = [0];
 let imageLoad = false;
@@ -200,6 +205,7 @@ class World{
     constructor(num){/**
         *@param path number of world
         */
+       console.log(sgs);
         this.num=num;
         if(num==0)return;
         this.x=0;
@@ -209,6 +215,7 @@ class World{
         this.height=dat.height;
         this.data = [];
         this.objectData = [];
+        this.inAir=true;
         for(var i = 0; i < dat.width;i++){
             this.data.push([]);
             for(var j = 0 ; j < dat.height;j++){
@@ -266,19 +273,20 @@ class World{
                     this.data[i][j] = 11;
                 }
                 */
+                if(this.data[i][j]!=0)
                 this.objectData.push(new Block(i,j,this.data[i][j]));
             }
         }
         
 
-        this.velx=-.1;
+        this.velx=-.3;
         this.vely=0;
         playerObject.position.y=7;
         
     }
     draw(){
         if(this.num==0)return;
-        this.x+=this.velx;
+        this.x+=this.velx/2;
         this.y+=this.vely;
         for(var i = 0 ; i < this.objectData.length;i++){
             
@@ -296,9 +304,37 @@ class World{
 
         }
     }
+
+    setY(){
+        if(this.num==0)return;
+
+    }
+
     physics(){
         if(this.num==0)return;
-        var currentBlock = this.data[0][0];
+        var i =Math.floor((-this.x+24))+1;
+        var j = Math.floor((this.y-playerObject.position.y/2)/2+1);
+        console.log("CT: "+this.data[i][j]);
+        
+        var ct = this.data[i][j];
+        var dt = this.data[i][j+1];
+
+        if(dt!=1){
+            this.vely+=.05;
+            this.inAir=true;
+
+            playerObject.rotateY(-.1);
+
+        }else{
+            this.vely=0;
+            this.inAir=false;
+            playerObject.lookAt(0,0,0);
+
+            
+
+        }
+        
+
     }
 
 }
@@ -317,10 +353,12 @@ function keyUp(event){
 
 function keyboard(){
     if(keys[87]){
-        world.y++;
+        if(!world.inAir){
+            world.vely=-1;
+        }
     }   
     if(keys[83]){
-        world.y--;
+        
     }   
     if(keys[68]){
         
@@ -359,6 +397,7 @@ var animate = function () {
     if(ingame){
         renderer.render( scene, camera );
         if(prevINGAME==false){
+            prevINGAME=true;
             world= new World(1);
         }
     }
