@@ -145,8 +145,8 @@ var loadImage = function (url) {
     }
   }
 function preload(){
-    loadImage("/assets/worlds/w1.png");
-    loadImage("/assets/worlds/w2.png")
+    loadImage(location.href+"/assets/worlds/w1.png");
+    loadImage(location.href+"/assets/worlds/w2.png")
 }
 preload();
 
