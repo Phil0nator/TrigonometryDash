@@ -7,39 +7,47 @@
 			body { margin: 0; }
 			canvas { display: block; }
 		</style>
-	</head>
+    </head>
+      
 	<body id="body">
-        <link rel="stylesheet" href="style.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <div id="warning-message">
 
-        <script>
-            //GLOBALS:
-            var ingame=false;
-            var uiState="MM";
-            function randint(min, max) {
-                return Math.floor(Math.random() * (max - min) ) + min;
-            }
+            <p id="warning-message_p">This game works best in landscape mode</p>
+            <span id=warning-message_bg></span>
+       
+        </div> 
+        <div id="wrapper">
+            <link rel="stylesheet" href="style.css">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        </script>
-        <script src = "main.js" type="module"></script>
-        <script src = "ui.js"></script>
+            <script>
+                //GLOBALS:
+                var ingame=false;
+                var uiState="MM";
+                function randint(min, max) {
+                    return Math.floor(Math.random() * (max - min) ) + min;
+                }
 
-        <div id = "MM">
+            </script>
+            <script src = "main.js" type="module"></script>
+            <script src = "ui.js"></script>
 
-            <button id="MMTP" onclick="_MMTP()">Play</button>
-            <button id="MMTLS">Level Select</button>
-            <button id="MMTO">Options</button>
+            <div id = "MM">
+
+                <button id="MMTP" onclick="_MMTP()">Play</button>
+                <button id="MMTLS">Level Select</button>
+                <button id="MMTO">Options</button>
+            </div>
+            
+            
+            
+            <div id="foot"></div>
+                <p style="z-index: 265;position:absolute;color:aliceblue;top:95%;left:90%">
+                    By Philo Kaulkin
+                </p>
+            </div>
+
         </div>
-        
-        
-        
-        <div id="foot"></div>
-            <p style="z-index: 265;position:absolute;color:aliceblue;top:95%;left:90%">
-                By Philo Kaulkin
-            </p>
-        </div>
-
-
 
 	</body>
 </html>

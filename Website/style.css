@@ -1,6 +1,7 @@
 body {
     overflow: hidden; /* Hide scrollbars */
     font-size: 1vw;
+    
   }
 
 #MM{
@@ -61,3 +62,47 @@ body {
     background-color: aquamarine;
     color: black; 
 }
+#warning-message{
+    overflow: hidden;
+}
+
+#warning-message_p{
+
+    position: absolute;
+    background-color: #550000;
+    color: #FFFFFF;
+    font-size: 6vw;
+    width:100%;
+    text-align:center;
+    top:50%;
+    z-index:256;
+
+
+}
+
+#warning-message_bg{
+    position: absolute;
+    background-color: #550000;
+    width:100%;
+    left:0%;
+    height:10%;
+    top:50%;
+    
+}
+
+
+#warning-message { display: none; }
+    
+    @media only screen and (orientation:portrait){
+
+        #wrapper { display:none; }
+
+        #warning-message { display:block; }
+
+    }
+
+    @media only screen and (orientation:landscape){
+
+        #warning-message { display:none; }
+
+    }

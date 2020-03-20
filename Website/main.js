@@ -8,12 +8,11 @@
 //dependcies:
 import * as THREE from "/three/three.module.js";
 import * as LOADER from "/three/GLTFLoader.js";
-
-
+'use strict';
 //constants:
 
-var width = window.innerWidth;
-var height = window.innerHeight;
+var width = 1879;
+var height = 939;
 var world_dim = 1000;
 var keys = [1024];
 let world_object;
@@ -24,6 +23,8 @@ var world_start_offset_y=980;
 var world_start_offset_x=-blockDim;
 let playerObject;
 var gravity = 1;
+var mousePressed = false;
+
 
 var objects = [];
 var scene = new THREE.Scene();
@@ -31,10 +32,13 @@ var fog = 100;
 scene.fog = new THREE.Fog( 0xffffff, fog, fog + 1000 );
 var Amblight = new THREE.AmbientLight( 0x404040 ); // soft white light
 scene.add( Amblight );
-var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+var camera = new THREE.PerspectiveCamera( 65, width / height, 1, 10000 );
 var renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize( 1879, 939 );
+const canvas = renderer.domElement;
+//camera.aspect = canvas.clientWidth / canvas.clientHeight;
+//camera.updateProjectionMatrix();
 
 var light = new THREE.DirectionalLight( 0xffffff, 1 );
 light.position.set( 0, 50, 0 );
@@ -300,7 +304,9 @@ class World{
     die(){
         this.velx=0;
         this.vely=0;
-        this.reset();
+        playerObject.visible=false;
+        playerObject.needsUpdate=true;
+        
     }
 
     draw(){
@@ -313,6 +319,8 @@ class World{
         }
     }
     reset(){
+        
+        playerObject.visible=true;
         var nw = new World(this.num);
         this.empty();
         this.objectData = nw.objectData;
@@ -320,6 +328,8 @@ class World{
         this.vely=0;
         this.x=0;
         this.y = world_start_offset_y;
+        playerObject.needsUpdate=true;
+
     }
     nextLevel(){
         this.num++;
@@ -348,7 +358,7 @@ class World{
         var dt = this.data[i][j+(1*gravity)];
         var rt = this.data[i][j];
 
-        if(ct == 2){
+        if(ct == 2||ct==5){
             this.die();
         }
 
@@ -393,6 +403,30 @@ class World{
 world = new World(0);
 
 
+
+
+
+
+class Particle{
+
+    constructor(x,y,type){
+
+    }
+
+
+}
+var particles = new Array(0);
+
+
+
+
+
+
+
+
+
+
+
 function keyDown(event){
 
     keys[event.keyCode] = true;
@@ -403,24 +437,44 @@ function keyUp(event){
     keys[event.keyCode]=false;
 }
 
-function keyboard(){
-    if(keys[87]){
-        if(!world.inAir){
-            world.vely=-.7 * gravity;
-        }
-    }   
-    if(keys[83]){
-        
-    }   
-    if(keys[68]){
-        
-    }
-    if(keys[65]){
-        
+function jump(){
+    if(!world.inAir){
+        world.vely=-.7 * gravity;
     }
 }
+
+function mouseD(event){
+    mousePressed=true;
+}
+function mouseU(event){
+    mousePressed=false;
+}
+
+
+
+function keyboard(){
+    if(keys[87]||keys[32]||keys[38]){
+        jump();
+    }   
+}
+function mouseInput(){
+    if(mousePressed){
+        jump();
+    }
+}
+
+function orientationchangehandler(event){
+    location.reload()
+}
+
+
 //<Maintain Aspect>
 window.addEventListener( 'resize', onWindowResize, false );
+window.addEventListener('orientationchange', orientationchangehandler, false);
+canvas.onmousedown=mouseD;
+canvas.onmouseup = mouseU;
+canvas.ontouchstart=mouseD;
+canvas.ontouchend=mouseU;
 
 function onWindowResize(){
 
@@ -434,7 +488,9 @@ function onWindowResize(){
 //</Maintain Aspect>
 document.addEventListener('keydown', keyDown, false);
 document.addEventListener('keyup', keyUp, false);
-
+function disableselect(e) {return false}
+document.onselectstart = function() {return false};
+document.onmousedown = disableselect
 
 //network ui
 var prevINGAME = ingame;
@@ -443,6 +499,7 @@ var prevINGAME = ingame;
 var animate = function () {
     requestAnimationFrame( animate );
     keyboard();
+    mouseInput();
     world.draw();
     world.physics();
     document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -451,7 +508,14 @@ var animate = function () {
         if(prevINGAME==false){
             prevINGAME=true;
             world= new World(1);
+            canvas.style.cursor = "none";
         }
+
+        if(world.velx==0&&particles.length==0){
+            world.reset();
+            gravity=1;
+        }
+
     }
     prevINGAME = ingame;
 };

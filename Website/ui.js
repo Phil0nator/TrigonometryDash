@@ -4,6 +4,7 @@ function hide (elements) {
     for (var index = 0; index < elements.length; index++) {
       elements[index].style.display = 'none';
     }
+    
 }
 
 function show(elements){
@@ -11,12 +12,14 @@ function show(elements){
     for (var index = 0; index < elements.length; index++) {
       elements[index].style.display = 'block';
     }
+    
 }
 
 var _MMTP = function(){
     var mm = document.getElementById("MM");
     hide(mm);
     ingame=true;
+    
     
 
 }
