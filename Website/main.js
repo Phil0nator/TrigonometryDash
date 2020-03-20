@@ -60,7 +60,6 @@ camera.lookAt (new THREE.Vector3(0,0,0));
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-
 var gridXZ = new THREE.GridHelper(100, 10,new THREE.Color(0xff0000), new THREE.Color(0xffffff));
 gridXZ.position.set(0,10,0);
 //scene.add(gridXZ);
@@ -224,6 +223,7 @@ class World{
         this.objectData = [];
         this.inAir=true;
         this.justBounced = false;
+        this.idleTime = 0;
         for(var i = 0; i < dat.width;i++){
             this.data.push([]);
             for(var j = 0 ; j < dat.height;j++){
@@ -302,10 +302,17 @@ class World{
 
     }
     die(){
+
+        if(this.velx!=0){
+            deathParticles();
+        }
+
         this.velx=0;
         this.vely=0;
         playerObject.visible=false;
         playerObject.needsUpdate=true;
+
+        
         
     }
 
@@ -317,11 +324,25 @@ class World{
             
             this.objectData[i].draw(this.velx,this.vely);
         }
+
+        if(!this.inAir&&this.velx!=0){
+            new Particle(0,0,1);
+        }else if (this.velx==0){
+            this.idleTime++;
+            if(this.idleTime>120){
+                clearParticles();
+                this.idleTime=0;
+            }
+        }
     }
     reset(){
         
+       
+        scene.add(playerObject);
+
         playerObject.visible=true;
         var nw = new World(this.num);
+        this.data=nw.data;
         this.empty();
         this.objectData = nw.objectData;
         this.velx=-.3;
@@ -406,17 +427,131 @@ world = new World(0);
 
 
 
-
+let particles = new Array(0);
+var numParticles = 0;
 class Particle{
 
     constructor(x,y,type){
+        this.x=x;
+        this.y=y+.5;
+        this.z=0;
+        this.type=type;
+
+        this.life = 0;
+        this.maxLife;
+        this.velx;
+        this.vely;
+        this.velz;
+        this.object;
+        this.mat;
+        this.geo;
+        this.index;
+        this.active=true;
+
+        if(type == 0){ //0=death
+            this.velx=rand(-1,1);
+            this.vely=rand(-1,1);
+            this.velz=rand(-1,1);
+
+            this.geo = new THREE.BoxGeometry( );
+            this.mat = new THREE.MeshBasicMaterial( {color: 0xFF5555} );
+            this.object = new THREE.Mesh(this.geo, this.mat);
+            
+            this.maxLife = 120;
+        }else if (type==1){//1==normal running
+            //this.velx=rand(-1,1);
+            this.velx=world.velx+rand(-1,-.5);
+            this.vely=rand(-1,0);
+            this.velz=rand(-1,1);
+
+            this.geo = new THREE.BoxGeometry( );
+            this.mat = new THREE.MeshBasicMaterial( {color: 0xAAAAFF} );
+            this.object = new THREE.Mesh(this.geo, this.mat);
+            
+            this.maxLife = 120;
+
+        }
+
+
+        this.object.position.x=this.x;
+        this.object.position.y=this.y;
+        this.object.position.z=this.z;
+        this.object.needsUpdate=true;
+
+        scene.add(this.object);
+        this.index=particles.length;
+        numParticles++;
+        particles.push(this);
 
     }
 
 
-}
-var particles = new Array(0);
+    destroy(){
+        scene.remove(this.object);
+        this.object.geometry.dispose();
+        this.object.material.dispose();
+        renderer.renderLists.dispose();
+        //delete this.object;
+        //particles.pop();
+        this.active=false;
+        numParticles--;
+    }
 
+    draw(){
+        
+        if(!this.active){
+            this.destroy();
+            return 1;
+        }
+        this.x+=this.velx+world.velx;
+        this.y+=this.vely+world.vely;
+        this.z+=this.velz;
+
+        this.object.position.x=this.x;
+        this.object.position.y=this.y;
+        this.object.position.z=this.z;
+
+        this.object.needsUpdate=true;
+        this.life++;
+        if(this.life>this.maxLife){
+            this.destroy();
+            return 0;
+        }
+        return 1;
+    }
+
+
+}
+function clearParticles(){
+    for(var i = 0 ; i < particles.length;i++){
+        scene.remove(particles[i].object);
+
+    }
+    particles.length=0;
+    numParticles=0;
+}
+
+function handleParticles(){
+    for(var i = 0 ; i < particles.length;i++){
+        if (particles[i].draw() ==0){
+            i--;
+        }
+    }
+
+    if(numParticles==0){
+        //clearParticles();
+        particles.length=0;
+    }
+}
+
+
+function deathParticles(){
+
+    for(var i = 0 ; i < 50;i++){
+        new Particle(0,0,0);
+    }
+
+}
 
 
 
@@ -500,6 +635,7 @@ var animate = function () {
     requestAnimationFrame( animate );
     keyboard();
     mouseInput();
+    handleParticles();
     world.draw();
     world.physics();
     document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -511,9 +647,12 @@ var animate = function () {
             canvas.style.cursor = "none";
         }
 
-        if(world.velx==0&&particles.length==0){
+        if(world.velx==0&&numParticles==0){
             world.reset();
+            clearParticles();
             gravity=1;
+            particles.length=0;
+            
         }
 
     }
