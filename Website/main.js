@@ -20,7 +20,7 @@ let world_object;
 let world;
 var blockDim = width/38.4;
 var blocktypecount = 7;
-var world_start_offset_y=990;
+var world_start_offset_y=980;
 var world_start_offset_x=-blockDim;
 let playerObject;
 var gravity = 1;
@@ -42,7 +42,10 @@ scene.add(light);
 var light2 = new THREE.DirectionalLight( 0xffffff, 1 );
 light2.position.set( 50, 50, 50 );
 scene.add(light2);
-var helper = new THREE.DirectionalLightHelper( light2, 5 );
+var light3 = new THREE.DirectionalLight(0xffAAff ,1);
+light3.position.set(1,5,10);
+scene.add(light3);
+var helper = new THREE.DirectionalLightHelper( light3, 5 );
 //scene.add( helper );
 
 
@@ -216,6 +219,7 @@ class World{
         this.data = [];
         this.objectData = [];
         this.inAir=true;
+        this.justBounced = false;
         for(var i = 0; i < dat.width;i++){
             this.data.push([]);
             for(var j = 0 ; j < dat.height;j++){
@@ -279,11 +283,26 @@ class World{
         }
         
 
-        this.velx=-.3;
+        this.velx=-.27;
         this.vely=0;
-        playerObject.position.y=7;
+        playerObject.position.y=2.3;
         
     }
+
+    empty(){
+
+        for(var i = 0 ; i < this.objectData.length;i++){
+            
+            this.objectData[i].destroy();
+        }
+
+    }
+    die(){
+        this.velx=0;
+        this.vely=0;
+        this.reset();
+    }
+
     draw(){
         if(this.num==0)return;
         this.x+=this.velx/2;
@@ -294,15 +313,17 @@ class World{
         }
     }
     reset(){
-        for(var i = 0 ; i < this.objectData.length;i++){
-            
-            this.objectData[i].object.position.x-=this.x;
-            this.objectData[i].x-=this.x;
-
-            this.objectData[i].object.position.y-=this.y;
-            this.objectData[i].y-=this.y;
-
-        }
+        var nw = new World(this.num);
+        this.empty();
+        this.objectData = nw.objectData;
+        this.velx=-.3;
+        this.vely=0;
+        this.x=0;
+        this.y = world_start_offset_y;
+    }
+    nextLevel(){
+        this.num++;
+        this.reset();
     }
 
     setY(){
@@ -313,26 +334,57 @@ class World{
     physics(){
         if(this.num==0)return;
         var i =Math.floor((-this.x+24))+1;
-        var j = Math.floor((this.y-playerObject.position.y/2)/2+1);
-        console.log("CT: "+this.data[i][j]);
+        var j = Math.floor((this.y-(playerObject.position.y+4.7)/2)/2+1);
+        
+        if(i > this.data.length){
+            this.next();
+        }
+        if(j > this.data[0].length || j < 0){
+            this.die();
+        }
+
         
         var ct = this.data[i][j];
-        var dt = this.data[i][j+1];
+        var dt = this.data[i][j+(1*gravity)];
+        var rt = this.data[i][j];
+
+        if(ct == 2){
+            this.die();
+        }
+
+        else if (ct == 3 || dt == 3 || rt == 3){
+            gravity = - gravity;
+            this.data[i][j] = 0; //make sure gravity only changes once. Will get reset with rest of map
+        }else if (ct == 4 || dt == 4 || rt == 4){
+            this.vely = -1.4*gravity;
+            this.justBounced=true;
+        }
+
 
         if(dt!=1){
-            this.vely+=.05;
+            this.vely+=.05 * gravity;
             this.inAir=true;
-
+            this.justBounced=false;
             playerObject.rotateY(-.1);
+            playerObject.rotateZ(-.1);
+            playerObject.rotateX(.1);
 
         }else{
-            this.vely=0;
+            if (!this.justBounced){
+                this.vely=0;
+            }
+            if(this.inAir){
+                
+            }
             this.inAir=false;
             playerObject.lookAt(0,0,0);
-
-            
-
+            this.setY();
         }
+
+        if(rt == 1){
+            this.die();
+        }
+        
         
 
     }
@@ -354,7 +406,7 @@ function keyUp(event){
 function keyboard(){
     if(keys[87]){
         if(!world.inAir){
-            world.vely=-1;
+            world.vely=-.7 * gravity;
         }
     }   
     if(keys[83]){
