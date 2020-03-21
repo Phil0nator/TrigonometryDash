@@ -24,6 +24,34 @@ var world_start_offset_x=-blockDim;
 let playerObject;
 var gravity = 1;
 var mousePressed = false;
+let worldColors = [randint(0,254),randint(0,254),randint(0,254)];
+let worldDirections = [1,1,1];
+var colortick = 0;
+
+function tickColor(){
+    colortick++;
+    if(colortick %2 !=0)return;
+
+    for(var i=0;i<worldColors.length;i++){
+        worldColors[i]+=randint(0,5)*worldDirections[i];
+        if(worldColors[i]>=255){
+            worldColors[i] = 255;
+            worldDirections[i] = -worldDirections[i];
+        }
+        if(worldColors[i]<0){
+            worldColors[i] = 0;
+            worldDirections[i] = -worldDirections[i];
+        }
+    }
+}
+
+function getColor(){
+    tickColor();
+    return new THREE.Color("rgb("+worldColors[0]+","+worldColors[1]+","+worldColors[2]+");")
+
+}
+
+
 
 
 var objects = [];
@@ -32,7 +60,9 @@ var fog = 100;
 scene.fog = new THREE.Fog( 0xffffff, fog, fog + 1000 );
 var Amblight = new THREE.AmbientLight( 0x404040 ); // soft white light
 scene.add( Amblight );
-var camera = new THREE.PerspectiveCamera( 65, width / height, 1, 10000 );
+var camera = new THREE.PerspectiveCamera( 45, width / height, 1, 10000 );
+
+
 var renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize( 1879, 939 );
@@ -49,13 +79,19 @@ scene.add(light2);
 var light3 = new THREE.DirectionalLight(0xffAAff ,1);
 light3.position.set(1,5,10);
 scene.add(light3);
+var light4 = new THREE.DirectionalLight(0xEEFFEE,1);
+light4.position.set(5,-5,20);
+scene.add(light4);
+
+
 var helper = new THREE.DirectionalLightHelper( light3, 5 );
 //scene.add( helper );
 
 
 camera.position.y = 20;
 camera.position.z=50;
-camera.lookAt (new THREE.Vector3(0,0,0));
+camera.position.x=-10;
+camera.lookAt (new THREE.Vector3(5,0,0));
 
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
@@ -73,9 +109,10 @@ var loader = new LOADER.GLTFLoader();
 
 
 //standard geometries:
-var sgs = new Array(0);
-sgs.length=0;
-sgs.push(null);
+var sgs = new Array(blocktypecount);
+//sgs.length=0;
+//sgs.push(null);
+sgs[0]=null;
 loader.load(
     // resource URL
     'assets/blocks/p.glb',
@@ -103,18 +140,15 @@ loader.load(
 
     }
 );
-
-for(var i = 1; i <= blocktypecount;i++){
-    
+function loadAsset(num){
     loader.load(
         // resource URL
-        'assets/blocks/'+i+'.glb',
+        'assets/blocks/'+num+'.glb',
         // called when the resource is loaded
         function ( gltf ) {
             
             
-            sgs.push(gltf.scene);
-            
+            sgs[num]=(gltf.scene);
             //scene.add(gltf.scene);
         },
         function ( xhr ) {
@@ -129,6 +163,9 @@ for(var i = 1; i <= blocktypecount;i++){
     
         }
     );
+}
+for(var i = 1; i <= blocktypecount;i++){
+    loadAsset(i);
     
 }
 
@@ -149,7 +186,7 @@ var loadImage = function (url) {
   }
 function preload(){
     loadImage(location.href+"/assets/worlds/w1.png");
-    loadImage(location.href+"/assets/worlds/w2.png")
+    loadImage(location.href+"/assets/worlds/w2.png");
 }
 preload();
 
@@ -403,12 +440,13 @@ class World{
         }else{
             if (!this.justBounced){
                 this.vely=0;
+                playerObject.lookAt(0,0,0);
             }
             if(this.inAir){
                 
             }
             this.inAir=false;
-            playerObject.lookAt(0,0,0);
+            
             this.setY();
         }
 
@@ -543,8 +581,8 @@ function handleParticles(){
     }
 
     if(numParticles==0){
-        //clearParticles();
-        particles.length=0;
+        clearParticles();
+        //particles.length=0;
     }
 }
 
@@ -578,7 +616,7 @@ function keyUp(event){
 
 function jump(){
     if(!world.inAir){
-        world.vely=-.7 * gravity;
+        world.vely=-.5 * gravity;
     }
 }
 
@@ -642,6 +680,8 @@ var animate = function () {
     handleParticles();
     world.draw();
     world.physics();
+    scene.background = getColor();
+    
     document.body.scrollTop = document.documentElement.scrollTop = 0;
     if(ingame){
         renderer.render( scene, camera );
@@ -649,6 +689,7 @@ var animate = function () {
             prevINGAME=true;
             world= new World(1);
             canvas.style.cursor = "none";
+            scene.color = getColor();
         }
 
         if(world.velx==0&&numParticles==0){

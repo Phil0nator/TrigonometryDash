@@ -1,7 +1,7 @@
 body {
     overflow: hidden; /* Hide scrollbars */
     font-size: 1vw;
-    
+    background-color: black;
   }
 
 #MM{
