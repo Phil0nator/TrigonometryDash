@@ -507,6 +507,10 @@ class Particle{
         this.y+=this.vely+world.vely;
         this.z+=this.velz;
 
+        
+        this.vely-=.01;
+        
+
         this.object.position.x=this.x;
         this.object.position.y=this.y;
         this.object.position.z=this.z;
@@ -547,7 +551,7 @@ function handleParticles(){
 
 function deathParticles(){
 
-    for(var i = 0 ; i < 50;i++){
+    for(var i = 0 ; i < 150;i++){
         new Particle(0,0,0);
     }
 
