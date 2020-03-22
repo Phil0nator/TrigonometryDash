@@ -19,8 +19,10 @@ var _MMTP = function(){
     var mm = document.getElementById("MM");
     hide(mm);
     ingame=true;
-    
-    
+}
+
+var _MMTPLS = function(){
+    window.location.href = "//philo.kaulk.in/trigdash/levelSelect.html";
 
 }
 
@@ -33,4 +35,3 @@ function keyUp(event){
     }
 }
 document.addEventListener('keyup', keyUp, false);
-

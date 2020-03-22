@@ -187,6 +187,8 @@ var loadImage = function (url) {
 function preload(){
     loadImage(location.href+"/assets/worlds/w1.png");
     loadImage(location.href+"/assets/worlds/w2.png");
+    loadImage(location.href+"/assets/worlds/w3.png");
+
 }
 preload();
 
@@ -241,6 +243,12 @@ function arraysEqual(a, b) {
 function die(){
     world.velx=0;
     
+}
+
+function nextWorld(){
+
+    world = new World(currentWorld);
+
 }
 
 class World{
@@ -390,8 +398,9 @@ class World{
 
     }
     nextLevel(){
-        this.num++;
-        this.reset();
+        currentWorld++;
+        worldsCompleted++;
+        nextWorld();
     }
 
     setY(){
@@ -404,7 +413,7 @@ class World{
         var i =Math.floor((-this.x+24))+1;
         var j = Math.floor((this.y-(playerObject.position.y+4.7)/2)/2+1);
         
-        if(i > this.data.length){
+        if(i >= this.data.length){
             this.next();
         }
         if(j > this.data[0].length || j < 0){
@@ -687,7 +696,7 @@ var animate = function () {
         renderer.render( scene, camera );
         if(prevINGAME==false){
             prevINGAME=true;
-            world= new World(1);
+            world= new World(currentWorld);
             canvas.style.cursor = "none";
             scene.color = getColor();
         }

@@ -48,6 +48,47 @@
                     return (Math.random() * (max - min) ) + min
                 }
 
+
+                let currentWorld=1;
+                let worldsCompleted = 0;
+
+                let cookieData = document.cookie;
+                function setCookie(cname, cvalue, exdays) {
+                    var d = new Date();
+                    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                    var expires = "expires="+d.toUTCString();
+                    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+                }
+
+                function getCookie(cname) {
+                    var name = cname + "=";
+                    var ca = document.cookie.split(';');
+                    for(var i = 0; i < ca.length; i++) {
+                        var c = ca[i];
+                        while (c.charAt(0) == ' ') {
+                            c = c.substring(1);
+                        }
+                        if (c.indexOf(name) == 0) {
+                            return c.substring(name.length, c.length);
+                        }
+                    }
+                    return "";
+                }
+
+
+
+                //setup cookies
+
+                if(getCookie("lvlComp")==""){
+                    setCookie("lvlComp",0,999);
+                }else{
+                    worldsCompleted =  parseInt(getCookie("lvlComp"));
+                    currentWorld = worldsCompleted+1;
+                }
+
+
+
+
             </script>
             <script src = "main.js" type="module"></script>
             <script src = "ui.js"></script>
@@ -55,11 +96,9 @@
             <div id = "MM">
 
                 <button id="MMTP" onclick="_MMTP()">Play</button>
-                <button id="MMTLS">Level Select</button>
+                <button id="MMTLS" onclick="_MMTPLS()">Level Select</button>
                 <button id="MMTO">Options</button>
             </div>
-            
-            
             
             <div id="foot"></div>
                 <p style="z-index: 265;position:absolute;color:aliceblue;top:95%;left:90%">
