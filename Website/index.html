@@ -6,17 +6,6 @@
         
 
 
-        <link rel="preload" href = "//philo.kaulk.in/trigdash/assets/blocks/1.glb" as ="fetch">
-        <link rel="preload" href = "//philo.kaulk.in/trigdash/assets/blocks/2.glb" as ="fetch">
-        <link rel="preload" href = "//philo.kaulk.in/trigdash/assets/blocks/3.glb" as ="fetch">
-        <link rel="preload" href = "//philo.kaulk.in/trigdash/assets/blocks/4.glb" as ="fetch">
-        <link rel="preload" href = "//philo.kaulk.in/trigdash/assets/blocks/5.glb" as ="fetch">
-        <link rel="preload" href = "//philo.kaulk.in/trigdash/assets/blocks/6.glb" as ="fetch">
-        <link rel="preload" href = "//philo.kaulk.in/trigdash/assets/blocks/7.glb" as ="fetch">
-
-
-
-
 
 
 		<style>
@@ -40,6 +29,10 @@
                 //GLOBALS:
                 var ingame=false;
                 var uiState="MM";
+
+                var fullyLoaded = false;
+
+
                 function randint(min, max) {
                     return Math.floor(Math.random() * (max - min) ) + min;
                 }
@@ -49,7 +42,7 @@
                 }
 
 
-                let currentWorld=1;
+                let currentWorld=3;
                 let worldsCompleted = 0;
 
                 let cookieData = document.cookie;
@@ -90,6 +83,14 @@
 
 
             </script>
+
+            <div id="loading">
+                <div class="loader">
+
+                </div>
+            </div>
+
+
             <script src = "main.js" type="module"></script>
             <script src = "ui.js"></script>
 
@@ -97,9 +98,17 @@
 
                 <button id="MMTP" onclick="_MMTP()">Play</button>
                 <button id="MMTLS" onclick="_MMTPLS()">Level Select</button>
+                <button id="MMTC"> Customize Character </button>
                 <button id="MMTO">Options</button>
             </div>
+
+            <script>
+                var mm = document.getElementById("MM");
+                hide(mm);
+            </script>
             
+
+
             <div id="foot"></div>
                 <p style="z-index: 265;position:absolute;color:aliceblue;top:95%;left:90%">
                     By Philo Kaulkin

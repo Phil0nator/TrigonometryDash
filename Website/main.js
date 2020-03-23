@@ -18,7 +18,7 @@ var keys = [1024];
 let world_object;
 let world;
 var blockDim = width/38.4;
-var blocktypecount = 7;
+var blocktypecount = 11;
 var world_start_offset_y=980;
 var world_start_offset_x=-blockDim;
 let playerObject;
@@ -27,6 +27,20 @@ var mousePressed = false;
 let worldColors = [randint(0,254),randint(0,254),randint(0,254)];
 let worldDirections = [1,1,1];
 var colortick = 0;
+var jumping = false;
+
+
+var player_state = 0;
+/////////////////
+// 0 = normal cube
+// 1 = plane
+// 2 = saw
+// 3 = triangle
+//////////////////
+var playerPlane;
+var playerCube;
+
+
 
 function tickColor(){
     colortick++;
@@ -113,19 +127,23 @@ var sgs = new Array(blocktypecount);
 //sgs.length=0;
 //sgs.push(null);
 sgs[0]=null;
+
+
+
+
+
+
+
 loader.load(
     // resource URL
     'assets/blocks/p.glb',
     // called when the resource is loaded
     function ( gltf ) {
-        
-        //sgs.push(gltf.scene);
+
         playerObject=gltf.scene;
+        playerCube=gltf.scene;
+        //playerObjects.push(gtlf.scene);
         scene.add(gltf.scene);
-        
-        
-        //playerObject.castShadow=true;
-        
         
     },
     function ( xhr ) {
@@ -140,6 +158,36 @@ loader.load(
 
     }
 );
+loader.load(
+    // resource URL
+    'assets/blocks/plane.glb',
+    // called when the resource is loaded
+    function ( gltf ) {
+        
+        playerPlane = (gltf.scene);
+        playerPlane.visible=false;
+        scene.add(gltf.scene);
+        
+    },
+    function ( xhr ) {
+
+        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded plane' );
+
+    },
+    // called when loading has errors
+    function ( error ) {
+
+        console.log( 'An error happened: '+error );
+
+    }
+);
+
+
+
+
+
+
+
 function loadAsset(num){
     loader.load(
         // resource URL
@@ -246,7 +294,9 @@ function die(){
 }
 
 function nextWorld(){
-
+    world.empty();
+    currentWorld++;
+    worldsCompleted++;
     world = new World(currentWorld);
 
 }
@@ -312,10 +362,6 @@ class World{
                 
                 }else if (arraysEqual(c , color(0,168,243))){
                     this.data[i][j] = 7;
-                }else{
-                    this.data[i][j]=0;
-                }
-                /*
                 }else if (arraysEqual(c ,color(255,202,24))){
                     this.data[i][j] = 8;
                 }else if (arraysEqual(c , color(196,255,14))){
@@ -325,7 +371,6 @@ class World{
                 }else if (arraysEqual(c , color(255,1,255))){
                     this.data[i][j] = 11;
                 }
-                */
                 if(this.data[i][j]!=0)
                 this.objectData.push(new Block(i,j,this.data[i][j]));
             }
@@ -335,6 +380,7 @@ class World{
         this.velx=-.27;
         this.vely=0;
         playerObject.position.y=2.3;
+        playerPlane.position.y=2.3;
         
     }
 
@@ -356,7 +402,7 @@ class World{
         this.vely=0;
         playerObject.visible=false;
         playerObject.needsUpdate=true;
-
+        player_state=0;
         
         
     }
@@ -370,7 +416,7 @@ class World{
             this.objectData[i].draw(this.velx,this.vely);
         }
 
-        if(!this.inAir&&this.velx!=0){
+        if((!this.inAir||player_state==1)&&this.velx!=0){
             new Particle(0,0,1);
         }else if (this.velx==0){
             this.idleTime++;
@@ -413,8 +459,8 @@ class World{
         var i =Math.floor((-this.x+24))+1;
         var j = Math.floor((this.y-(playerObject.position.y+4.7)/2)/2+1);
         
-        if(i >= this.data.length){
-            this.next();
+        if(i >= this.data.length - 10){
+            nextWorld();
         }
         if(j > this.data[0].length || j < 0){
             this.die();
@@ -437,15 +483,41 @@ class World{
             this.justBounced=true;
         }
 
+        if(ct == 9){
+            player_state=1;
+            playerObject.visible=false;
+            playerPlane.visible=true;
+            playerObject=playerPlane.clone();
+            playerObject.visible=true;
+
+            playerObject.needsUpdate=true;
+
+
+        }
+
+
+        if(jumping){
+            if(ct==10){
+                jumpOverride();
+                this.data[i][j]=0;
+            }
+            if(ct==11){
+                gravity=-gravity;
+                this.vely=-this.vely;
+                this.data[i][j]=0;
+            }
+        }
+
 
         if(dt!=1){
             this.vely+=.05 * gravity;
             this.inAir=true;
             this.justBounced=false;
-            playerObject.rotateY(-.1);
-            playerObject.rotateZ(-.1);
-            playerObject.rotateX(.1);
-
+            //playerObject.rotateY(-.1);
+            //playerObject.rotateZ(-.1);
+            if(player_state==0){
+                playerObject.rotateY(-.1);
+            }
         }else{
             if (!this.justBounced){
                 this.vely=0;
@@ -480,7 +552,7 @@ class Particle{
 
     constructor(x,y,type){
         this.x=x;
-        this.y=y+.5;
+        this.y=y+2;
         this.z=0;
         this.type=type;
 
@@ -621,11 +693,22 @@ function keyDown(event){
 
 function keyUp(event){
     keys[event.keyCode]=false;
+    jumping=false;
 }
 
+function jumpOverride(){
+    world.vely=-.5 * gravity;
+}
+
+
 function jump(){
-    if(!world.inAir){
-        world.vely=-.5 * gravity;
+    jumping=true;
+    if(player_state==0){
+        if(!world.inAir){
+            jumpOverride();
+        }
+    }else if (player_state==1){
+        world.vely=-.1 * gravity;
     }
 }
 
@@ -634,6 +717,7 @@ function mouseD(event){
 }
 function mouseU(event){
     mousePressed=false;
+    jumping=false;
 }
 
 
@@ -681,36 +765,47 @@ document.onmousedown = disableselect
 //network ui
 var prevINGAME = ingame;
 
+var now,delta,then = Date.now();
+var interval = 1000/30;
+
+
 
 var animate = function () {
     requestAnimationFrame( animate );
-    keyboard();
-    mouseInput();
-    handleParticles();
-    world.draw();
-    world.physics();
-    scene.background = getColor();
-    
-    document.body.scrollTop = document.documentElement.scrollTop = 0;
-    if(ingame){
-        renderer.render( scene, camera );
-        if(prevINGAME==false){
-            prevINGAME=true;
-            world= new World(currentWorld);
-            canvas.style.cursor = "none";
-            scene.color = getColor();
-        }
 
-        if(world.velx==0&&numParticles==0){
-            world.reset();
-            clearParticles();
-            gravity=1;
-            particles.length=0;
-            
-        }
+    now = Date.now();
+    delta = now - then;
 
+
+    if(delta>interval){
+        keyboard();
+        mouseInput();
+        handleParticles();
+        world.draw();
+        world.physics();
+        scene.background = getColor();
+        
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+        if(ingame&&fullyLoaded){
+            renderer.render( scene, camera );
+            if(prevINGAME==false){
+                prevINGAME=true;
+                world= new World(currentWorld);
+                canvas.style.cursor = "none";
+                scene.color = getColor();
+            }
+
+            if(world.velx==0&&numParticles==0){
+                world.reset();
+                clearParticles();
+                gravity=1;
+                particles.length=0;
+                
+            }
+
+        }
+        prevINGAME = ingame;
     }
-    prevINGAME = ingame;
 };
 
 

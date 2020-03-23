@@ -16,8 +16,10 @@ function show(elements){
 }
 
 var _MMTP = function(){
+    if(!fullyLoaded)return;
     var mm = document.getElementById("MM");
     hide(mm);
+    document.getElementById("loading").style.display = "none";
     ingame=true;
 }
 
@@ -26,6 +28,13 @@ var _MMTPLS = function(){
 
 }
 
+var onLoad = function(event){
+    fullyLoaded =true;
+    var mm = document.getElementById("MM");
+    show(mm);
+    document.getElementById("loading").style.display = "none";
+    
+}
 
 
 function keyUp(event){
@@ -35,3 +44,6 @@ function keyUp(event){
     }
 }
 document.addEventListener('keyup', keyUp, false);
+window.addEventListener('load', function () {
+    onLoad(null);
+})
