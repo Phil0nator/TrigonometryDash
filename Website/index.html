@@ -21,6 +21,9 @@
             <span id=warning-message_bg></span>
        
         </div> 
+
+
+
         <div id="wrapper">
             <link rel="stylesheet" href="style.css">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +45,7 @@
                 }
 
 
-                let currentWorld=3;
+                let currentWorld=1;
                 let worldsCompleted = 0;
 
                 let cookieData = document.cookie;
@@ -72,11 +75,12 @@
 
                 //setup cookies
 
-                if(getCookie("lvlComp")==""){
+                if(getCookie("lvlComp")==""||getCookie("crtLvl")==""){
                     setCookie("lvlComp",0,999);
+                    setCookie("crtLvl", 1, 999);
                 }else{
                     worldsCompleted =  parseInt(getCookie("lvlComp"));
-                    currentWorld = worldsCompleted+1;
+                    currentWorld = parseInt(getCookie("crtLvl"));
                 }
 
 
@@ -95,10 +99,14 @@
             <script src = "ui.js"></script>
 
             <div id = "MM">
+                
+                <div class="info">
+                    <p id="info" >Welcome</p>
+                </div>
 
                 <button id="MMTP" onclick="_MMTP()">Play</button>
                 <button id="MMTLS" onclick="_MMTPLS()">Level Select</button>
-                <button id="MMTC"> Customize Character </button>
+                <button id="MMTC" onclick="window.location.href+= 'customize.html'"> Customize Character </button>
                 <button id="MMTO">Options</button>
             </div>
 

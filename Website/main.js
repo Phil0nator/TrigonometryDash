@@ -297,6 +297,10 @@ function nextWorld(){
     world.empty();
     currentWorld++;
     worldsCompleted++;
+
+    setCookie("lvlComp", worldsCompleted, 999);
+    setCookie("crtLvl", currentWorld, 999);
+
     world = new World(currentWorld);
 
 }

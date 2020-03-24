@@ -10,15 +10,39 @@
             body{
                 background-color: black;
                 overflow-x:hidden;
+                font-family:Verdana;
+                font-size: 1vw;
+                
+
             }
-            
+            header{
+                z-index: 265;
+                position: relative;
+                margin:auto;
+                margin-top:auto;
+                width:100%;
+                height:9%;
+                color:white;
+                text-align: center;
+                background-color: #555555;
+
+            }
+
+            #top{
+                z-index: 265;
+                position: relative;
+                margin:auto;
+                margin-top:auto;
+                text-align: center;
+
+            }
 
             #main{
-                position: absolute;
+                position: relative;
                 top:0px;
                 left:0px;
                 width:100%;
-                height:100%;
+                height:89%;
                 z-index: 256;
                 font-size: 1vw;
                 padding-top: 5vh;
@@ -34,7 +58,8 @@
                 opacity:1;
                 padding-top: 1vh;
                 padding-left: 1vw;
-
+                border-color: green;
+                border-radius: 5px;
 
             }
 
@@ -57,20 +82,61 @@
                 
             }
 
-        </style>
+            .notPassed{
+                position: relative;
+                width:10%;
+                height:10%;
+                min-width:50px;
+                min-height:50px;
+                transition-duration: .25s;
+                opacity:.25;
+                padding-top: 1vh;
+                padding-left: 1vw;
 
+                border-color: red;
+                border-radius: 5px;
+                cursor: not-allowed;
+
+                
+
+            }
+
+
+            .notPassed:active{
+                position: relative;
+                width:10%;
+                height:10%;
+                min-width:50px;
+                min-height:50px;
+                transition-duration: .25s;
+                opacity:.3;
+                padding-top: 1vh;
+                padding-left: 1vw;
+
+                border-color: red;
+                border-radius: 5px;
+                cursor: not-allowed;
+
+            }
+
+        </style>
+        <header>
+            <p id="top">
+                Level Select
+            </p>
+        </header>
 
         <div id ="main">
 
             <div id="row1">
                 <a class="lvlIcon" id ="w1p">
-                    <img src="//philo.kaulk.in/trigdash/assets/worlds/w1p.png" class="lvlIcon">
+                    <img src="assets/worlds/w1p.png" class="lvlIcon" id = "_1" onclick = "go(1)">
                 </a>
                 <a class="lvlIcon" id ="w2p">
-                    <img src="//philo.kaulk.in/trigdash/assets/worlds/w2p.png" class="lvlIcon">
+                    <img src="assets/worlds/w2p.png" class="lvlIcon" id = "_2" onclick = "go(2)">
                 </a>
                 <a class="lvlIcon" id ="w3p">
-                    <img src="//philo.kaulk.in/trigdash/assets/worlds/w3p.png" class="lvlIcon" >
+                    <img src="assets/worlds/w3p.png" class="lvlIcon" id = "_3" onclick = "go(3)">
                 </a>
             </div>
             
@@ -80,12 +146,52 @@
 
 
         <script id="sort levels">
-            
-            var elements = document.getElementById("main");
-            elements = elements.length ? elements : [elements];
-            for (var index = 0; index < elements.length; index++) {
-                
+            function getCookie(cname) {
+                    var name = cname + "=";
+                    var ca = document.cookie.split(';');
+                    for(var i = 0; i < ca.length; i++) {
+                        var c = ca[i];
+                        while (c.charAt(0) == ' ') {
+                            c = c.substring(1);
+                        }
+                        if (c.indexOf(name) == 0) {
+                            return c.substring(name.length, c.length);
+                        }
+                    }
+                    return "";
             }
+            function setCookie(cname, cvalue, exdays) {
+                    var d = new Date();
+                    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                    var expires = "expires="+d.toUTCString();
+                    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+                }
+
+            window.onload=startup;
+
+            function startup(){
+                
+                for(var i = 1 ; i <= 3;i++){
+
+                    if(i-1 > parseInt(getCookie("lvlComp"))){
+                        //document.getElementById("_"+(i)).className="notPassed";
+                        document.getElementById("w"+i+"p").className="notPassed";
+                    }
+
+                }
+            }
+
+            function go(lvl){
+                if(lvl-1 < parseInt(getCookie("lvlComp"))+1){
+                    setCookie("crtLvl", lvl, 999);
+                    window.location.href="/trigdash";
+                }else{
+                    return false;
+                }
+
+
+            }
+
 
 
         </script>

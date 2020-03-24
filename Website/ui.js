@@ -24,7 +24,7 @@ var _MMTP = function(){
 }
 
 var _MMTPLS = function(){
-    window.location.href = "//philo.kaulk.in/trigdash/levelSelect.html";
+    window.location.href = "levelSelect.html";
 
 }
 
@@ -32,7 +32,10 @@ var onLoad = function(event){
     fullyLoaded =true;
     var mm = document.getElementById("MM");
     show(mm);
-    document.getElementById("loading").style.display = "none";
+    document.getElementById("loading").style.display = "none";    
+    
+    var info = document.getElementById("info");
+    info.innerHTML = "<u><b> Welcome </b></u> </br >Current Level: "+ currentWorld + "</br >Levels Completed: "+worldsCompleted;
     
 }
 
