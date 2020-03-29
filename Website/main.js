@@ -39,7 +39,7 @@ var player_state = 0;
 //////////////////
 var playerPlane;
 var playerCube;
-
+var playerSaw;
 
 
 function tickColor(){
@@ -182,6 +182,30 @@ loader.load(
     }
 );
 
+
+loader.load(
+    // resource URL
+    'assets/blocks/saw.glb',
+    // called when the resource is loaded
+    function ( gltf ) {
+        
+        playerSaw = (gltf.scene);
+        playerSaw.visible=false;
+        scene.add(gltf.scene);
+        
+    },
+    function ( xhr ) {
+
+        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded saw' );
+
+    },
+    // called when loading has errors
+    function ( error ) {
+
+        console.log( 'An error happened: '+error );
+
+    }
+);
 
 
 
@@ -407,7 +431,11 @@ class World{
         playerObject.visible=false;
         playerObject.needsUpdate=true;
         player_state=0;
-        
+        playerSaw.visible=false;
+        playerCube.visible=false;
+        playerPlane.visible=false;
+
+        playerObject = playerCube.clone();
         
     }
 
@@ -493,10 +521,15 @@ class World{
             playerPlane.visible=true;
             playerObject=playerPlane.clone();
             playerObject.visible=true;
-
             playerObject.needsUpdate=true;
+        }
 
-
+        if(ct == 8){
+            player_state = 2;
+            playerObject.visible=false;
+            playerObject = playerSaw.clone();
+            playerObject.visible=true;
+            playerObject.needsUpdate=true;
         }
 
 
@@ -523,7 +556,7 @@ class World{
                 playerObject.rotateY(-.1);
             }
         }else{
-            if (!this.justBounced){
+            if (!this.justBounced&&player_state!="saw"){
                 this.vely=0;
                 playerObject.lookAt(0,0,0);
             }
@@ -712,7 +745,9 @@ function jump(){
             jumpOverride();
         }
     }else if (player_state==1){
-        world.vely=-.1 * gravity;
+        world.vely=-.5 * gravity;
+    }else if (player_state==2){
+        gravity=-gravity;
     }
 }
 
